@@ -7,8 +7,57 @@ execute:
 
 
 ```{r}
+#| cache: true
 library(tidyverse)
 library(primer.data)
+library(tidymodels)
+library(broom)
+library(marginaleffects)
 ```
 
-There is a dataset which includes list of governors along with their attributes such as name, gender, and region.  We are trying to find out whether if there is correlation between numbers of year lived after election.
+There is a dataset which includes list of governors along with their attributes such as name, gender, and region.  We are trying to find out whether if there is correlation between numbers of year lived after election.  The data collected may not represent entire aspect of candidate where candidates might be from certain part of US which has different statistic as ones across entire US.
+
+$$
+\log\left( \frac{\hat{P}(Y = 1)}{1 - \hat{P}(Y = 1)} \right)
+= -2.6831 + 0.4439 \cdot \text{ethnicity}_{\text{cauc}} 
+- 0.2316 \cdot \text{gender}_{\text{male}} 
++ 0.0250 \cdot \text{experience} 
++ 0.7869 \cdot \text{honors}_{\text{yes}} 
+- 0.4048 \cdot \text{city}_{\text{chicago}}
+$$
+
+```{=latex}
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Term} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{Statistic} & \textbf{p-value} \\
+\midrule
+(Intercept)            & 19.32 & 22.01 & 0.88  & 0.380 \\
+election\_age          & -0.06 &  0.37 & -0.15 & 0.879 \\
+sexMale                & 53.30 & 22.10 & 2.41  & 0.016 \\
+election\_age:sexMale  & -0.80 &  0.37 & -2.14 & 0.032 \\
+\bottomrule
+\end{tabular}
+\caption{Logistic Regression Results from tidy()}
+\end{table}
+```
+
+
+```{r}
+library(ggplot2)
+
+predictions <- x %>%
+  mutate(.pred = predict(fit_years, new_data = x)$.pred)
+
+ggplot(predictions, aes(x = election_age, y = .pred, color = sex)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(
+    title = "Predicted Years Lived After Election by Age and Sex",
+    subtitle = "Smoothed predictions from the fitted model",
+    x = "Age at Election",
+    y = "Predicted Years Lived",
+    color = "Sex"
+  )
+```
