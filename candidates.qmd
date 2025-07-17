@@ -1,5 +1,14 @@
 ---
 title: "Life Expectancy for Political Candidates"
 format: html
+execute: 
+  echo: false
 ---
 
+
+```{r}
+library(tidyverse)
+library(primer.data)
+```
+
+There is a dataset which includes list of governors along with their attributes such as name, gender, and region.  We are trying to find out whether if there is correlation between numbers of year lived after election.
